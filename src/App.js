@@ -4,13 +4,12 @@ import React, { Component } from 'react';
 import { ApolloProvider } from 'react-apollo';
 
 import Scenes from './Scenes';
-import client from './client';
+import { client, store } from './modules';
 
 class App extends Component {
-
   render() {
     return (
-      <ApolloProvider client={client}>
+      <ApolloProvider client={client} store={store}>
         <Scenes />
       </ApolloProvider>
     );

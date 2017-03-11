@@ -1,5 +1,5 @@
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
-import config from './config';
+import config from 'comicCentral/src/config';
 
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({
