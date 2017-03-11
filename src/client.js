@@ -1,7 +1,17 @@
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
+import config from './config';
 
 const client = new ApolloClient({
-  networkInterface: createNetworkInterface({ uri: 'http://localhost:8888/GraphQL' }),
+  networkInterface: createNetworkInterface({
+    uri: `${config.host}${config.graphQLUri}`,
+  }),
+  addTypename: true,
+  dataIdFromObject: result => {
+    if (result._id && result.__typename) {
+      return result.__typename + result._id;
+    }
+    return null;
+  },
 });
 
 export default client;

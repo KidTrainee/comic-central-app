@@ -5,20 +5,20 @@ import { Page, Library } from 'comicCentral/src/components';
 
 class Home extends Component {
   static navigationOptions = {
-    title: 'Home',
+    title: ({ state }) => state.params ? state.params.folderName : 'Librairie',
   };
 
-  state: StateType = {
-    folderId: null,
-  };
   props: PropsType;
 
   render() {
+    const { state, navigate } = this.props.navigation;
+    console.log(this.props.navigation);
     return (
       <Page noPadding>
         <Library
-          onFolderSelect={folderId => this.setState({ folderId })}
-          folderId={this.state.folderId}
+          onFolderSelect={({ _id, name }) =>
+            navigate('home', { folderId: _id, folderName: name })}
+          folderId={state.params ? state.params.folderId : null}
         />
       </Page>
     );

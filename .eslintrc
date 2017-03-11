@@ -1,5 +1,4 @@
 {
-  "extends": "airbnb",
   "env": {
     "browser": true,
     "node": true,
@@ -26,12 +25,28 @@
     "react"
   ],
   "rules": {
-    "strict": [2, "global"],
+    "strict": [
+      2,
+      "global"
+    ],
     "no-var": 0,
     "one-var": 0,
     "func-names": 0,
-    "indent": [2, 2, {"SwitchCase": 1}],
-    "max-len": ["error", 120, 2, {"ignoreUrls": true}],
+    "indent": [
+      2,
+      2,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "max-len": [
+      "error",
+      120,
+      2,
+      {
+        "ignoreUrls": true
+      }
+    ],
     "consistent-return": 0,
     "class-methods-use-this": 0,
     "no-bitwise": 0,

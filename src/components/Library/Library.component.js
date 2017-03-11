@@ -1,31 +1,45 @@
 // @flow
 
 import React, { PureComponent } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator, Text } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  Text,
+} from 'react-native';
 import Folder from '../Folder';
+import Comic from '../Comic';
 
 class Library extends PureComponent {
   props: PropsType;
 
   render() {
     if (this.props.data.loading) {
-      return (<ActivityIndicator size="large" />);
+      return <ActivityIndicator size="large" />;
     }
 
     if (this.props.data.error) {
-      console.log(this.props.data.error);
-      return (<Text>Error</Text>);
+      return <Text>Error</Text>;
     }
+
+    console.log(this.props.data.folder.comics);
 
     return (
       <ScrollView>
         <View style={styles.container}>
-          { this.props.data.folder.folders.map(folder => (
+          {this.props.data.folder.folders.map(folder => (
             <Folder
               key={folder._id}
               folder={folder}
-              onPress={() => this.props.onFolderSelect(folder._id)}
+              onPress={() => this.props.onFolderSelect({
+                _id: folder._id,
+                name: folder.name,
+              })}
             />
+          ))}
+          {this.props.data.folder.comics.map(folder => (
+            <Comic key={folder._id} comic={folder} />
           ))}
         </View>
       </ScrollView>

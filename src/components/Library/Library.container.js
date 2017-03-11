@@ -13,6 +13,12 @@ const FolderQuery = gql`
         _id,
         name,
         coverUrl
+      },
+      comics {
+        _id,
+        name,
+        coverUrl,
+        path
       }
     }
   }
