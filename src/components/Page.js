@@ -1,3 +1,5 @@
+// @flow
+
 import React, { PropTypes } from 'react';
 import { View, StyleSheet } from 'react-native';
 import appStyle from 'comicCentral/src/appStyle';
@@ -12,10 +14,13 @@ const styles = StyleSheet.create({
 
 const Page = props => (
   <View
-    style={[styles.page, {
-      paddingHorizontal: props.noPadding ? 0 : appStyle.grid.x3,
-      backgroundColor: props.backgroundColor,
-    }]}
+    style={[
+      styles.page,
+      {
+        paddingHorizontal: props.noPadding ? 0 : appStyle.grid.x3,
+        backgroundColor: props.backgroundColor,
+      },
+    ]}
   >
     {props.children}
   </View>

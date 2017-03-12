@@ -11,7 +11,11 @@ class Comic extends Component {
     const comic = this.props.comic;
 
     return (
-      <TouchableOpacity style={styles.container} onPress={this.props.onPress}>
+      <TouchableOpacity
+        style={styles.container}
+        onPress={() =>
+          this.props.onPress(this.props.comic._id, this.props.comic.path)}
+      >
         <Image
           style={styles.cover}
           source={{ uri: `${config.host}${comic.coverUrl}` }}

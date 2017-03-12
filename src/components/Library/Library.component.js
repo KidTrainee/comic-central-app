@@ -23,8 +23,6 @@ class Library extends PureComponent {
       return <Text>Error</Text>;
     }
 
-    console.log(this.props.data.folder.comics);
-
     return (
       <ScrollView>
         <View style={styles.container}>

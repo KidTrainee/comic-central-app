@@ -12,7 +12,7 @@ class Home extends Component {
 
   render() {
     const { state, navigate } = this.props.navigation;
-    console.log(this.props.navigation);
+
     return (
       <Page noPadding>
         <Library

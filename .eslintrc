@@ -47,6 +47,7 @@
         "ignoreUrls": true
       }
     ],
+    "no-undefined": 2,
     "consistent-return": 0,
     "class-methods-use-this": 0,
     "no-bitwise": 0,
