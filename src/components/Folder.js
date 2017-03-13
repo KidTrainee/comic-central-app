@@ -10,10 +10,7 @@ class Folder extends Component {
     const folder = this.props.folder;
 
     return (
-      <TouchableOpacity
-        style={styles.container}
-        onPress={this.props.onPress}
-      >
+      <TouchableOpacity style={styles.container} onPress={this.props.onPress}>
         <Image
           style={styles.cover}
           source={{ uri: `http://localhost:8888${folder.coverUrl}` }}
@@ -43,11 +40,11 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     resizeMode: 'cover',
-    backgroundColor: 'gray',
+    backgroundColor: 'white',
   },
   name: {
     marginTop: 4,
-    color: 'black',
+    color: 'white',
     textAlign: 'center',
   },
 });

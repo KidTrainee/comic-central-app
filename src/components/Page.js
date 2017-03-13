@@ -2,7 +2,7 @@
 
 import React, { PropTypes } from 'react';
 import { View, StyleSheet } from 'react-native';
-import appStyle from 'comicCentral/src/appStyle';
+import { colors } from 'comicCentral/src/appStyle';
 
 const styles = StyleSheet.create({
   page: {
@@ -35,7 +35,7 @@ Page.propTypes = {
 Page.defaultProps = {
   children: null,
   noPadding: false,
-  backgroundColor: appStyle.colors.color,
+  backgroundColor: colors.background,
 };
 
 export default Page;

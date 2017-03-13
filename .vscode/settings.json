@@ -1,5 +1,11 @@
 {
   "javascript.validate.enable": false,
   "editor.formatOnSave": true,
-  "prettier.printWidth": 80
+  "prettier.printWidth": 80,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/ios": true,
+    "**/android": true
+  }
 }

@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import { TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
 import config from 'comicCentral/src/config';
+import { colors, margins } from 'comicCentral/src/appStyle';
 
 class Comic extends Component {
   props: PropsType;
@@ -19,8 +20,9 @@ class Comic extends Component {
         <Image
           style={styles.cover}
           source={{ uri: `${config.host}${comic.coverUrl}` }}
-        />
-        <Text style={styles.name}>{comic.name}</Text>
+        >
+          <Text style={styles.name}>{comic.name}</Text>
+        </Image>
       </TouchableOpacity>
     );
   }
@@ -37,19 +39,21 @@ type PropsType = {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    width: '25%',
-    paddingVertical: 4,
+    width: '33.3333%',
   },
   cover: {
     width: '100%',
-    aspectRatio: 0.75,
+    aspectRatio: 0.70,
     resizeMode: 'cover',
-    backgroundColor: 'gray',
+    backgroundColor: colors.comic.cover,
+    justifyContent: 'flex-end',
   },
   name: {
-    marginTop: 4,
-    color: 'black',
+    color: colors.comic.name,
     textAlign: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingVertical: margins.xs,
+    marginBottom: margins.sm,
   },
 });
 
