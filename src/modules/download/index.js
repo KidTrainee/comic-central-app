@@ -1,6 +1,7 @@
 // @flow
 
-import { call, put, takeEvery, spawn } from 'redux-saga/effects';
+import { eventChannel, END } from 'redux-saga';
+import { call, put, takeEvery, spawn, fork, take } from 'redux-saga/effects';
 import RNFS from 'react-native-fs';
 import config from 'comicCentral/src/config';
 
@@ -76,7 +77,6 @@ export function reducer(
         },
       };
     case actionTypes.DOWNLOAD_FILE_FINISHED:
-      console.log('DONE');
       return {
         comics: {
           ...state.comics,
@@ -118,36 +118,46 @@ export function* saga() {
   yield takeEvery(actionTypes.DOWNLOAD_FILE, downloadFileSaga);
 }
 
-export function* setFileProgressSaga(_id, progress) {
-  yield call(setFileProgress(_id, progress));
-}
-
-export function* setFileBeginSaga(_id) {
-  yield call(setFileBegin(_id));
-}
-
-export function* downloadFileSaga(action: ActionType) {
-  const { _id, uri } = action.payload;
+export function downloadFileSagaHelper(_id, uri) {
   const url = `${config.host}/comics${uri}`.replace(/ /g, '%20');
   const file = `${RNFS.DocumentDirectoryPath}/${_id}.cbz`;
 
-  try {
+  return eventChannel(emitter => {
     const { promise, jobId } = RNFS.downloadFile({
       fromUrl: url,
       toFile: file,
       progressDivider: 5,
-      begin: function() {
-        put(setFileBegin(_id));
+      begin: () => {
+        emitter(setFileBegin(_id));
       },
-      progress: function({ bytesWritten, contentLength }) {
+      progress: ({ bytesWritten, contentLength }) => {
         const progress = contentLength / bytesWritten;
-        put(setFileProgress(_id, progress));
+        emitter(setFileProgress(_id, progress));
       },
     });
-    const { statusCode } = yield call(p => p, promise);
-    console.log(statusCode);
-    yield put(setFileFinished(_id));
-  } catch (err) {
-    yield put(setFileError(_id, 'ERROR'));
+
+    promise.then(() => {
+      emitter(setFileFinished(_id));
+      emitter(END);
+    });
+
+    return () => {
+      RNFS.stopDownload(jobId);
+    };
+  });
+}
+
+export function* downloadFileSaga(action: ActionType) {
+  console.log('DOWNLOAD');
+  const { _id, uri } = action.payload;
+  const channel = yield call(downloadFileSagaHelper, _id, uri);
+
+  try {
+    while (true) {
+      let action = yield take(channel);
+      yield put(action);
+    }
+  } finally {
+    console.log('Terminated');
   }
 }
