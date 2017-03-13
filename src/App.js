@@ -7,6 +7,9 @@ import { ApolloProvider } from 'react-apollo';
 import Scenes from './Scenes';
 import { client, store } from './modules';
 
+StatusBar.setBackgroundColor('#000');
+StatusBar.setBarStyle('light-content');
+
 class App extends Component {
   render() {
     return (
