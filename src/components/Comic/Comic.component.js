@@ -9,7 +9,15 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 class Comic extends Component {
   props: PropsType;
 
-  onPress = () => {};
+  onPress = () => {
+    const { comic, download } = this.props;
+
+    if (!download.isLoaded) {
+      this.props.onDownload(comic._id, comic.path);
+    } else {
+      this.props.onRead(comic._id);
+    }
+  };
 
   render() {
     const { comic, download } = this.props;
@@ -18,11 +26,7 @@ class Comic extends Component {
       : null;
 
     return (
-      <TouchableOpacity
-        style={styles.container}
-        onPress={() => this.props.onPress(comic._id, comic.path)}
-        disabled={download.isLoaded}
-      >
+      <TouchableOpacity style={styles.container} onPress={this.onPress}>
         <Image
           style={styles.cover}
           source={{ uri: `${config.host}${comic.coverUrl}` }}
@@ -44,7 +48,8 @@ class Comic extends Component {
 }
 
 type PropsType = {
-  onPress: () => void,
+  onDownload: () => void,
+  onRead: () => void,
   download: any,
   comic: {
     _id: string,

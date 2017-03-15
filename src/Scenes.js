@@ -16,12 +16,15 @@ const styles = StyleSheet.create({
 
 export default StackNavigator(
   {
-    home: {
-      screen: Pages.Home,
+    library: {
+      screen: Pages.Library,
+    },
+    reader: {
+      screen: Pages.Reader,
     },
   },
   {
-    initialRouteName: 'home',
+    initialRouteName: 'library',
     navigationOptions: {
       header: {
         backTitle: null,

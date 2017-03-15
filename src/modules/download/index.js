@@ -11,11 +11,6 @@ type StateType = {
   },
 };
 
-type ActionType = {
-  type: string,
-  payload: Object,
-};
-
 type ComicType = {
   error: ?string,
   isLoading: boolean,
@@ -99,6 +94,9 @@ export function reducer(
 
 export const getDownload = (state, _id) => state.downloads.comics[_id] || {};
 
+export const getDownloadPath = (state, _id) =>
+  state.downloads.comics[_id].filePath;
+
 export const setFileFinished = (_id: string, filePath: string): ActionType => ({
   type: actionTypes.DOWNLOAD_FILE_FINISHED,
   payload: { _id, filePath },
@@ -148,7 +146,6 @@ export function downloadFileSagaHelper(_id, uri) {
         emitter(END);
       })
       .catch(err => {
-        console.log(err);
         emitter(setFileError(_id, 'Error'));
         emitter(END);
       });

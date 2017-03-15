@@ -37,7 +37,11 @@ class Library extends PureComponent {
             />
           ))}
           {this.props.data.folder.comics.map(folder => (
-            <Comic key={folder._id} comic={folder} />
+            <Comic
+              key={folder._id}
+              comic={folder}
+              onRead={this.props.onComicRead}
+            />
           ))}
         </View>
       </ScrollView>
@@ -47,7 +51,8 @@ class Library extends PureComponent {
 
 type PropsType = {
   folderId: String,
-  onFolderSelect: (_id: String) => void,
+  onFolderSelect: (_id: string) => void,
+  onComicRead: (_id: string) => void,
   data: {
     loading: boolean,
     error: Object,

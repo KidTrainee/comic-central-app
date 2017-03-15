@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 import { Page, Library } from 'comicCentral/src/components';
 
-class Home extends Component {
+class LibraryPage extends Component {
   static navigationOptions = {
     title: ({ state }) => state.params ? state.params.folderName : 'Librairie',
   };
@@ -17,8 +17,11 @@ class Home extends Component {
       <Page noPadding>
         <Library
           onFolderSelect={({ _id, name }) =>
-            navigate('home', { folderId: _id, folderName: name })}
+            navigate('library', { folderId: _id, folderName: name })}
           folderId={state.params ? state.params.folderId : null}
+          onComicRead={comicId => {
+            this.props.navigation.navigate('reader', { _id: comicId });
+          }}
         />
       </Page>
     );
@@ -33,4 +36,4 @@ type StateType = {
   folderId: ?String,
 };
 
-export default Home;
+export default LibraryPage;
