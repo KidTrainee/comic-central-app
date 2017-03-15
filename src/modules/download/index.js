@@ -20,7 +20,8 @@ type ComicType = {
   error: ?string,
   isLoading: boolean,
   progress: number,
-  data: ?Object,
+  isLoaded: boolean,
+  filePath: ?string,
 };
 
 export const defaultState: StateType = {
@@ -47,20 +48,21 @@ export function reducer(
           [action.payload._id]: {
             error: null,
             isLoading: true,
+            isLoaded: false,
+            filePath: null,
             progress: 0,
             data: null,
           },
         },
       };
     case actionTypes.DOWNLOAD_FILE_PROGRESS:
+      const _id = action.payload._id;
       return {
         comics: {
           ...state.comics,
-          [action.payload._id]: {
-            error: null,
-            isLoading: true,
+          [_id]: {
+            ...state.comics[_id],
             progress: action.payload.progress,
-            data: null,
           },
         },
       };
@@ -71,8 +73,9 @@ export function reducer(
           [action.payload._id]: {
             error: action.payload.error,
             isLoading: false,
+            isLoaded: false,
+            filePath: null,
             progress: 0,
-            data: null,
           },
         },
       };
@@ -83,8 +86,9 @@ export function reducer(
           [action.payload._id]: {
             error: null,
             isLoading: false,
-            progress: 100,
-            data: {},
+            isLoaded: true,
+            filePath: action.payload.filePath,
+            progress: 1,
           },
         },
       };
@@ -93,9 +97,11 @@ export function reducer(
   }
 }
 
-export const setFileFinished = (_id: string): ActionType => ({
+export const getDownload = (state, _id) => state.downloads.comics[_id] || {};
+
+export const setFileFinished = (_id: string, filePath: string): ActionType => ({
   type: actionTypes.DOWNLOAD_FILE_FINISHED,
-  payload: { _id },
+  payload: { _id, filePath },
 });
 export const setFileProgress = (_id: string, progress): ActionType => ({
   type: actionTypes.DOWNLOAD_FILE_PROGRESS,
@@ -120,26 +126,32 @@ export function* saga() {
 
 export function downloadFileSagaHelper(_id, uri) {
   const url = `${config.host}/comics${uri}`.replace(/ /g, '%20');
-  const file = `${RNFS.DocumentDirectoryPath}/${_id}.cbz`;
+  const filePath = `${RNFS.DocumentDirectoryPath}/${_id}.cbz`;
 
   return eventChannel(emitter => {
     const { promise, jobId } = RNFS.downloadFile({
       fromUrl: url,
-      toFile: file,
-      progressDivider: 5,
+      toFile: filePath,
+      progressDivider: 1,
       begin: () => {
         emitter(setFileBegin(_id));
       },
       progress: ({ bytesWritten, contentLength }) => {
-        const progress = contentLength / bytesWritten;
+        const progress = bytesWritten / contentLength;
         emitter(setFileProgress(_id, progress));
       },
     });
 
-    promise.then(() => {
-      emitter(setFileFinished(_id));
-      emitter(END);
-    });
+    promise
+      .then(() => {
+        emitter(setFileFinished(_id, filePath));
+        emitter(END);
+      })
+      .catch(err => {
+        console.log(err);
+        emitter(setFileError(_id, 'Error'));
+        emitter(END);
+      });
 
     return () => {
       RNFS.stopDownload(jobId);
@@ -148,7 +160,6 @@ export function downloadFileSagaHelper(_id, uri) {
 }
 
 export function* downloadFileSaga(action: ActionType) {
-  console.log('DOWNLOAD');
   const { _id, uri } = action.payload;
   const channel = yield call(downloadFileSagaHelper, _id, uri);
 
@@ -157,7 +168,5 @@ export function* downloadFileSaga(action: ActionType) {
       let action = yield take(channel);
       yield put(action);
     }
-  } finally {
-    console.log('Terminated');
-  }
+  } catch (err) {}
 }

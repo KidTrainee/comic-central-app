@@ -4,27 +4,39 @@ import React, { Component } from 'react';
 import { TouchableOpacity, Image, Text, StyleSheet, View } from 'react-native';
 import config from 'comicCentral/src/config';
 import { colors, margins } from 'comicCentral/src/appStyle';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 class Comic extends Component {
   props: PropsType;
 
+  onPress = () => {};
+
   render() {
-    const comic = this.props.comic;
+    const { comic, download } = this.props;
+    const progressStyle = download.isLoading
+      ? { width: `${download.progress * 100}%` }
+      : null;
 
     return (
       <TouchableOpacity
         style={styles.container}
-        onPress={() =>
-          this.props.onPress(this.props.comic._id, this.props.comic.path)}
+        onPress={() => this.props.onPress(comic._id, comic.path)}
+        disabled={download.isLoaded}
       >
         <Image
           style={styles.cover}
           source={{ uri: `${config.host}${comic.coverUrl}` }}
         >
           <View style={styles.nameContainer}>
-            <View style={styles.nameProgress} />
-            <Text style={styles.name}>{comic.name}</Text>
+            <View style={[styles.nameProgress, progressStyle]} />
+            <Text style={styles.name}>
+              {comic.name}
+            </Text>
           </View>
+          {download.isLoaded &&
+            <View style={styles.iconContainer}>
+              <Icon name="download" style={styles.icon} />
+            </View>}
         </Image>
       </TouchableOpacity>
     );
@@ -33,9 +45,11 @@ class Comic extends Component {
 
 type PropsType = {
   onPress: () => void,
+  download: any,
   comic: {
-    title: String,
-    coverUrl: String,
+    _id: string,
+    name: string,
+    coverUrl: string,
   },
 };
 
@@ -68,6 +82,20 @@ const styles = StyleSheet.create({
     color: colors.comic.name,
     textAlign: 'center',
     backgroundColor: 'transparent',
+  },
+  iconContainer: {
+    width: 24,
+    height: 24,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: 'absolute',
+    top: margins.xs,
+    right: margins.xs,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    color: 'white',
   },
 });
 
