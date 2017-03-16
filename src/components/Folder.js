@@ -1,7 +1,7 @@
 // @flow
 
 import React, { Component } from 'react';
-import { TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Image, View, Text, StyleSheet } from 'react-native';
 
 class Folder extends Component {
   props: PropsType;
@@ -11,10 +11,12 @@ class Folder extends Component {
 
     return (
       <TouchableOpacity style={styles.container} onPress={this.props.onPress}>
-        <Image
-          style={styles.cover}
-          source={{ uri: `http://localhost:8888${folder.coverUrl}` }}
-        />
+        <View style={styles.coverContainer}>
+          <Image
+            style={styles.cover}
+            source={{ uri: `http://localhost:8888${folder.coverUrl}` }}
+          />
+        </View>
         <Text style={styles.name}>{folder.name}</Text>
       </TouchableOpacity>
     );
@@ -35,12 +37,18 @@ const styles = StyleSheet.create({
     width: '25%',
     paddingVertical: 4,
   },
-  cover: {
+  coverContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    resizeMode: 'cover',
     backgroundColor: 'white',
+    overflow: 'hidden',
+  },
+  cover: {
+    borderRadius: 40,
+    resizeMode: 'cover',
+    width: '100%',
+    height: '100%',
   },
   name: {
     marginTop: 4,
