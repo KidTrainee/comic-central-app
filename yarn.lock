@@ -1862,9 +1862,9 @@ flat-cache@^1.2.1:
     graceful-fs "^4.1.2"
     write "^0.2.1"
 
-flow-bin@^0.41.0:
-  version "0.41.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.41.0.tgz#8badac9a19da45004997e599bd316518db489b2e"
+flow-bin@^0.38.0:
+  version "0.38.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.38.0.tgz#3ae096d401c969cc8b5798253fb82381e2d0237a"
 
 for-in@^1.0.1:
   version "1.0.2"
@@ -3512,9 +3512,9 @@ react-native-drawer-layout@^1.1.0:
     autobind-decorator "^1.3.2"
     react-native-dismiss-keyboard "1.0.0"
 
-react-native-fs@^2.1.0-rc.1:
+"react-native-fs@git+ssh://git@github.com:codesinghanoop/react-native-fs.git":
   version v2.1.0-rc.1
-  resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.1.0-rc.1.tgz#f6078891005478648738db396e822ec0aefc4b95"
+  resolved "git+ssh://git@github.com/codesinghanoop/react-native-fs.git#ad36b078db9728489155a55c1b7daa42ed191945"
   dependencies:
     base-64 "^0.1.0"
     utf8 "^2.1.1"

@@ -6,10 +6,10 @@ import {
   View,
   TouchableWithoutFeedback,
   StyleSheet,
+  Text,
 } from 'react-native';
-import RNFS from 'react-native-fs';
-import { unzip } from 'react-native-zip-archive';
 import { Page } from 'comicCentral/src/components';
+import { loadFiles } from 'comicCentral/src/services/zip';
 import Loader from './components/Loader';
 
 const styles = StyleSheet.create({
@@ -45,12 +45,7 @@ class Reader extends Component {
   };
 
   componentDidMount() {
-    const outputPath = `${RNFS.DocumentDirectoryPath}/current`;
-    RNFS.unlink(outputPath)
-      .catch(() => {})
-      .then(() => RNFS.mkdir(outputPath))
-      .then(() => unzip(this.props.filePath, outputPath))
-      .then(() => RNFS.readDir(outputPath))
+    loadFiles(this.props.filePath)
       .then(files => {
         this.setState({
           files,
@@ -59,7 +54,14 @@ class Reader extends Component {
           currentFile: `file://${files[0].path}`,
         });
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        this.setState({
+          isLoading: false,
+          currentFile: null,
+          error: 'ERROR',
+        });
+      });
   }
 
   nextPage = () => {

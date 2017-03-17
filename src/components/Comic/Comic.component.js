@@ -1,7 +1,14 @@
 // @flow
 
 import React, { Component } from 'react';
-import { TouchableOpacity, Image, Text, StyleSheet, View } from 'react-native';
+import {
+  TouchableOpacity,
+  Image,
+  Text,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import config from 'comicCentral/src/config';
 import { colors, margins } from 'comicCentral/src/appStyle';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -12,9 +19,9 @@ class Comic extends Component {
   onPress = () => {
     const { comic, download } = this.props;
 
-    if (!download.isLoaded) {
+    if (!download.isLoaded && !download.isQueued) {
       this.props.onDownload(comic._id, comic.path);
-    } else {
+    } else if (download.isLoaded) {
       this.props.onRead(comic._id);
     }
   };
@@ -40,6 +47,10 @@ class Comic extends Component {
           {download.isLoaded &&
             <View style={styles.iconContainer}>
               <Icon name="download" style={styles.icon} />
+            </View>}
+          {(download.isQueued || download.isLoading) &&
+            <View style={styles.iconContainer}>
+              <ActivityIndicator color="white" />
             </View>}
         </Image>
       </TouchableOpacity>
@@ -89,8 +100,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   iconContainer: {
-    width: 24,
-    height: 24,
+    width: 40,
+    height: 40,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     position: 'absolute',
     top: margins.xs,
@@ -101,6 +112,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     color: 'white',
+    fontSize: 30,
   },
 });
 
