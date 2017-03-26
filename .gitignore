@@ -52,3 +52,8 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
 src/config.js
+# Fastlane
+dist
+fastlane/report.xml
+fastlane/.env.*.secret
+*.back

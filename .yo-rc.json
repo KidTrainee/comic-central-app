@@ -3,6 +3,7 @@
     "base": true,
     "eslint": true,
     "jest": true,
-    "vscode": true
+    "vscode": true,
+    "fastlane": true
   }
 }
