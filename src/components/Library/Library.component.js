@@ -30,10 +30,11 @@ class Library extends PureComponent {
             <Folder
               key={folder._id}
               folder={folder}
-              onPress={() => this.props.onFolderSelect({
-                _id: folder._id,
-                name: folder.name,
-              })}
+              onPress={() =>
+                this.props.onFolderSelect({
+                  _id: folder._id,
+                  name: folder.name,
+                })}
             />
           ))}
           {this.props.data.folder.comics.map(folder => (

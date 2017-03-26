@@ -189,6 +189,9 @@ export function downloadFileSagaHelper(_id: string, uri: string) {
     const { promise, jobId } = RNFS.downloadFile({
       fromUrl: url,
       toFile: filePath,
+      headers: {
+        token: config.token,
+      },
       progressDivider: 10,
       begin: () => {
         emitter(setFileBegin(_id));

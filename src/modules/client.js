@@ -1,10 +1,25 @@
+// @flow
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import config from 'comicCentral/src/config';
 
+const networkInterface = createNetworkInterface({
+  uri: `${config.host}${config.graphQLUri}`,
+});
+
+networkInterface.use([
+  {
+    applyMiddleware(req, next) {
+      if (!req.options.headers) {
+        req.options.headers = {};
+      }
+      req.options.headers['token'] = config.token;
+      next();
+    },
+  },
+]);
+
 const client = new ApolloClient({
-  networkInterface: createNetworkInterface({
-    uri: `${config.host}${config.graphQLUri}`,
-  }),
+  networkInterface,
   addTypename: true,
   dataIdFromObject: result => {
     if (result._id && result.__typename) {

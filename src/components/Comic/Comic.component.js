@@ -36,7 +36,12 @@ class Comic extends Component {
       <TouchableOpacity style={styles.container} onPress={this.onPress}>
         <Image
           style={styles.cover}
-          source={{ uri: `${config.host}${comic.coverUrl}` }}
+          source={{
+            uri: `${config.host}${comic.coverUrl}`,
+            headers: {
+              token: config.token,
+            },
+          }}
         >
           <View style={styles.nameContainer}>
             <View style={[styles.nameProgress, progressStyle]} />

@@ -7,6 +7,13 @@ import { ApolloProvider } from 'react-apollo';
 import Scenes from './Scenes';
 import { client, store } from './modules';
 
+global.XMLHttpRequest = global.originalXMLHttpRequest
+  ? global.originalXMLHttpRequest
+  : global.XMLHttpRequest;
+global.FormData = global.originalFormData
+  ? global.originalFormData
+  : global.FormData;
+
 StatusBar.setBackgroundColor('#000');
 StatusBar.setBarStyle('light-content');
 

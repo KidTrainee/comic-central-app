@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import { TouchableOpacity, Image, View, Text, StyleSheet } from 'react-native';
+import config from 'comicCentral/src/config';
 
 class Folder extends Component {
   props: PropsType;
@@ -14,7 +15,12 @@ class Folder extends Component {
         <View style={styles.coverContainer}>
           <Image
             style={styles.cover}
-            source={{ uri: `http://localhost:8888${folder.coverUrl}` }}
+            source={{
+              uri: `${config.host}${folder.coverUrl}`,
+              headers: {
+                token: config.token,
+              },
+            }}
           />
         </View>
         <Text style={styles.name}>{folder.name}</Text>
