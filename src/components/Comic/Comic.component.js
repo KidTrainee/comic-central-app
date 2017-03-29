@@ -41,6 +41,7 @@ class Comic extends Component {
             headers: {
               token: config.token,
             },
+            cache: 'force-cache',
           }}
         >
           <View style={styles.nameContainer}>

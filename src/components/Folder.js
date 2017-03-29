@@ -20,6 +20,7 @@ class Folder extends Component {
               headers: {
                 token: config.token,
               },
+              cache: 'force-cache',
             }}
           />
         </View>

@@ -10,17 +10,19 @@ import {
 } from 'react-native';
 import Folder from '../Folder';
 import Comic from '../Comic';
+import Loader from '../Loader';
+import Error from '../Error';
 
 class Library extends PureComponent {
   props: PropsType;
 
   render() {
     if (this.props.data.loading) {
-      return <ActivityIndicator size="large" />;
+      return <Loader />;
     }
 
     if (this.props.data.error) {
-      return <Text>Error</Text>;
+      return <Error />;
     }
 
     return (
