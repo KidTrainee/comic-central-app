@@ -1,6 +1,7 @@
 // @flow
 
 import { eventChannel, END, buffers } from 'redux-saga';
+import throttle from 'lodash.throttle';
 import {
   call,
   put,
@@ -192,14 +193,16 @@ export function downloadFileSagaHelper(_id: string, uri: string) {
       headers: {
         token: config.token,
       },
-      progressDivider: 10,
       begin: () => {
         emitter(setFileBegin(_id));
       },
-      progress: ({ bytesWritten, contentLength }) => {
-        const progress = bytesWritten / contentLength;
-        emitter(setFileProgress(_id, progress));
-      },
+      progress: throttle(
+        ({ bytesWritten, contentLength }) => {
+          const progress = bytesWritten / contentLength;
+          emitter(setFileProgress(_id, progress));
+        },
+        200
+      ),
     });
 
     promise
