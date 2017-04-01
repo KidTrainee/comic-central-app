@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage, DeviceEventEmitter } from 'react-native';
 import { createStore, applyMiddleware, compose } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import { persistStore, autoRehydrate } from 'redux-persist';
@@ -21,10 +21,14 @@ const store = createStore(
   )
 );
 
-persistStore(store, {
-  storage: AsyncStorage,
-  whitelist: ['downloads'],
-});
+persistStore(
+  store,
+  {
+    storage: AsyncStorage,
+    whitelist: ['downloads', 'apollo'],
+  },
+  () => DeviceEventEmitter.emit('HYDRATED')
+);
 
 sagaMiddleware.run(saga);
 

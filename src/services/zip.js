@@ -1,14 +1,18 @@
 // @flow
 
-import RNFS from 'react-native-fs';
+import RNFetch from 'react-native-fetch-blob';
 import { unzip } from 'react-native-zip-archive';
 
-const outputPath = `${RNFS.DocumentDirectoryPath}/current`;
+export const outputPath = `${RNFetch.fs.dirs.CacheDir}/current`;
 
-export function loadFiles(filePath) {
-  return RNFS.unlink(outputPath)
-    .catch(() => {})
-    .then(() => RNFS.mkdir(outputPath))
+export function loadFiles(filePath: string) {
+  return RNFetch.fs
+    .unlink(outputPath)
+    .then(() => RNFetch.fs.mkdir(outputPath))
     .then(() => unzip(filePath, outputPath))
-    .then(() => RNFS.readDir(outputPath));
+    .then(() => RNFetch.fs.ls(outputPath))
+    .then(data => {
+      console.log(data);
+      return data;
+    });
 }

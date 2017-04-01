@@ -9,7 +9,7 @@ import {
   Text,
 } from 'react-native';
 import { Page } from 'comicCentral/src/components';
-import { loadFiles } from 'comicCentral/src/services/zip';
+import { loadFiles, outputPath } from 'comicCentral/src/services/zip';
 import Loader from './components/Loader';
 
 const styles = StyleSheet.create({
@@ -45,13 +45,17 @@ class Reader extends Component {
   };
 
   componentDidMount() {
+    this.load();
+  }
+
+  load = () => {
     loadFiles(this.props.filePath)
       .then(files => {
         this.setState({
           files,
           fileIndex: 0,
           isLoading: false,
-          currentFile: `file://${files[0].path}`,
+          currentFile: `file://${outputPath}/${files[0]}`,
         });
       })
       .catch(err => {
@@ -62,12 +66,12 @@ class Reader extends Component {
           error: 'ERROR',
         });
       });
-  }
+  };
 
   nextPage = () => {
     if (this.state.fileIndex + 1 < this.state.files.length) {
       const fileIndex = this.state.fileIndex + 1;
-      const currentFile = `file://${this.state.files[fileIndex].path}`;
+      const currentFile = `file://${outputPath}/${this.state.files[fileIndex]}`;
       this.setState({
         fileIndex,
         currentFile,
@@ -78,7 +82,7 @@ class Reader extends Component {
   previousPage = () => {
     if (this.state.fileIndex > 0) {
       const fileIndex = this.state.fileIndex - 1;
-      const currentFile = `file://${this.state.files[fileIndex].path}`;
+      const currentFile = `file://${outputPath}/${this.state.files[fileIndex]}`;
       this.setState({
         fileIndex,
         currentFile,

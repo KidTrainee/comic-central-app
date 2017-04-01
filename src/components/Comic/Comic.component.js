@@ -20,20 +20,32 @@ class Comic extends Component {
     const { comic, download } = this.props;
 
     if (!download.isLoaded && !download.isQueued) {
-      this.props.onDownload(comic._id, comic.path);
+      this.props.onDownload(comic._id);
     } else if (download.isLoaded) {
       this.props.onRead(comic._id);
+    }
+  };
+
+  onLongPress = () => {
+    const { comic, download } = this.props;
+
+    if (download.isLoaded) {
+      this.props.onDelete(comic._id);
     }
   };
 
   render() {
     const { comic, download } = this.props;
     const progressStyle = download.isLoading
-      ? { width: `${download.progress * 100}%` }
+      ? { width: `${download.progress.toFixed(1)}%` }
       : null;
 
     return (
-      <TouchableOpacity style={styles.container} onPress={this.onPress}>
+      <TouchableOpacity
+        style={styles.container}
+        onPress={this.onPress}
+        onLongPress={this.onLongPress}
+      >
         <Image
           style={styles.cover}
           source={{
@@ -65,14 +77,11 @@ class Comic extends Component {
 }
 
 type PropsType = {
-  onDownload: () => void,
-  onRead: () => void,
+  onDownload: (_id: string) => void,
+  onRead: (_id: string) => void,
+  onDelete: (_id: string) => void,
   download: any,
-  comic: {
-    _id: string,
-    name: string,
-    coverUrl: string,
-  },
+  comic: ComicType,
 };
 
 const styles = StyleSheet.create({

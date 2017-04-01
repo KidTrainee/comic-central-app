@@ -2,6 +2,7 @@
 
 import React, { PureComponent } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { colors } from 'comicCentral/src/appStyle';
 
 const styles = StyleSheet.create({
   container: {
@@ -9,6 +10,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.background,
   },
 });
 

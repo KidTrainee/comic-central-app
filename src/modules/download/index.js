@@ -1,10 +1,10 @@
 // @flow
 
 import { eventChannel, END, buffers } from 'redux-saga';
-import throttle from 'lodash.throttle';
 import {
   call,
   put,
+  select,
   actionChannel,
   spawn,
   fork,
@@ -12,22 +12,14 @@ import {
   takeEvery,
 } from 'redux-saga/effects';
 import { REHYDRATE } from 'redux-persist/constants';
-import RNFS from 'react-native-fs';
+import RNFetch from 'react-native-fetch-blob';
 import config from 'comicCentral/src/config';
+import { getComic } from '../appolo';
 
 type StateType = {
   comics: {
-    [keys: string]: ComicType,
+    [keys: string]: DownloadType,
   },
-};
-
-type ComicType = {
-  error: ?string,
-  isLoading: boolean,
-  isQueued: boolean,
-  progress: number,
-  isLoaded: boolean,
-  filePath: ?string,
 };
 
 export const defaultState: StateType = {
@@ -42,11 +34,13 @@ export const actionTypes = {
   DOWNLOAD_FILE_FINISHED: 'DOWNLOAD.DOWNLOAD_FILE_FINISHED',
   DOWNLOAD_FILE_ERROR: 'DOWNLOAD.DOWNLOAD_FILE_ERROR',
   DOWNLOAD_FILE_PROGRESS: 'DOWNLOAD.DOWNLOAD_FILE_PROGRESS',
+  DELETE_FILE: 'DOWNLOAD.DELETE_FILE',
+  DELETE_FILE_FINISHED: 'DOWNLOAD.DELETE_FILE_FINISHED',
 };
 
 export function reducer(
   state: StateType = defaultState,
-  action: ActionType
+  action: ActionType<*>
 ): StateType {
   switch (action.type) {
     case actionTypes.DOWNLOAD_FILE_QUEUED:
@@ -60,7 +54,6 @@ export function reducer(
             isLoaded: false,
             filePath: null,
             progress: 0,
-            data: null,
           },
         },
       };
@@ -75,7 +68,6 @@ export function reducer(
             isLoaded: false,
             filePath: null,
             progress: 0,
-            data: null,
           },
         },
       };
@@ -118,6 +110,20 @@ export function reducer(
           },
         },
       };
+    case actionTypes.DELETE_FILE_FINISHED:
+      return {
+        comics: {
+          ...state.comics,
+          [action.payload._id]: {
+            error: null,
+            isLoading: false,
+            isQueued: false,
+            isLoaded: false,
+            filePath: null,
+            progress: 0,
+          },
+        },
+      };
     default:
       return state;
   }
@@ -129,49 +135,37 @@ export const getDownload = (state: any, _id: string) =>
 export const getDownloadPath = (state: any, _id: string) =>
   state.downloads.comics[_id].filePath;
 
-export const setFileFinished = (_id: string, filePath: string): ActionType => ({
-  type: actionTypes.DOWNLOAD_FILE_FINISHED,
-  payload: { _id, filePath },
-});
-export const setFileProgress = (_id: string, progress: number): ActionType => ({
-  type: actionTypes.DOWNLOAD_FILE_PROGRESS,
-  payload: { _id, progress },
-});
-export const setFileBegin = (_id: string): ActionType => ({
-  type: actionTypes.DOWNLOAD_FILE_BEGIN,
-  payload: { _id },
-});
-export const setFileQueued = (_id: string): ActionType => ({
-  type: actionTypes.DOWNLOAD_FILE_QUEUED,
-  payload: { _id },
-});
-export const setFileError = (_id: string, error: string): ActionType => ({
-  type: actionTypes.DOWNLOAD_FILE_ERROR,
-  payload: { _id, error },
-});
-export const downloadFileQueue = (_id: string, uri: string): ActionType => ({
-  type: actionTypes.DOWNLOAD_FILE_QUEUE,
-  payload: { _id, uri },
-});
-export const downloadFile = (_id: string, uri: string): ActionType => ({
+export const downloadFile = (_id: string): ActionType<*> => ({
   type: actionTypes.DOWNLOAD_FILE,
-  payload: { _id, uri },
+  payload: { _id },
+});
+
+export const deleteFile = (_id: string): ActionType<*> => ({
+  type: actionTypes.DELETE_FILE,
+  payload: { _id },
 });
 
 export function* saga(): * {
-  yield fork(watchDownloadFile);
-  yield fork(watchDownloadFileQueue);
+  yield fork(watchDownloadFileSaga);
+  yield fork(watchDownloadFileQueueSaga);
+  yield fork(watchDeleteFileSaga);
 }
 
-export function* watchDownloadFile(): * {
-  yield takeEvery(actionTypes.DOWNLOAD_FILE, function*(action: ActionType) {
+export function* watchDownloadFileSaga(): * {
+  yield takeEvery(actionTypes.DOWNLOAD_FILE, function*(action: ActionType<*>) {
     const { _id, uri } = action.payload;
-    yield put(setFileQueued(_id));
-    yield put(downloadFileQueue(_id, uri));
+    yield put({
+      type: actionTypes.DOWNLOAD_FILE_QUEUED,
+      payload: { _id },
+    });
+    yield put({
+      type: actionTypes.DOWNLOAD_FILE_QUEUE,
+      payload: { _id },
+    });
   });
 }
 
-export function* watchDownloadFileQueue(): * {
+export function* watchDownloadFileQueueSaga(): * {
   const requestChan = yield actionChannel(
     actionTypes.DOWNLOAD_FILE_QUEUE,
     buffers.expanding(1)
@@ -182,48 +176,63 @@ export function* watchDownloadFileQueue(): * {
   }
 }
 
-export function downloadFileSagaHelper(_id: string, uri: string) {
-  const url = `${config.host}/comics${uri}`.replace(/ /g, '%20');
-  const filePath = `${RNFS.DocumentDirectoryPath}/${_id}.cbz`;
+export function* watchDeleteFileSaga(): * {
+  yield takeEvery(actionTypes.DELETE_FILE, deleteFileSaga);
+}
+
+export function downloadFileSagaHelper(comic: ComicType, uri: string) {
+  const { _id, path } = comic;
+  const url = `${config.host}/comics${path}`.replace(/ /g, '%20');
+  const filePath = `${RNFetch.fs.dirs.MainBundleDir}/${_id}.cbz`;
 
   return eventChannel(emitter => {
-    const { promise, jobId } = RNFS.downloadFile({
-      fromUrl: url,
-      toFile: filePath,
-      headers: {
+    const task = RNFetch.config({
+      path: filePath,
+      addAndroidDownloads: {
+        useDownloadManager: true,
+        title: comic.name,
+        notification: true,
+      },
+    })
+      .fetch('GET', url, {
         token: config.token,
-      },
-      begin: () => {
-        emitter(setFileBegin(_id));
-      },
-      progress: throttle(
-        ({ bytesWritten, contentLength }) => {
-          const progress = bytesWritten / contentLength;
-          emitter(setFileProgress(_id, progress));
-        },
-        200
-      ),
-    });
-
-    promise
-      .then(() => {
-        emitter(setFileFinished(_id, filePath));
+      })
+      .progress({ interval: 200 }, (received, total) => {
+        const progress = received / total * 100;
+        emitter({
+          type: actionTypes.DOWNLOAD_FILE_PROGRESS,
+          payload: { _id, progress },
+        });
+      })
+      .then(res => {
+        emitter({
+          type: actionTypes.DOWNLOAD_FILE_FINISHED,
+          payload: { _id, filePath: res.path() },
+        });
         emitter(END);
       })
-      .catch(err => {
-        emitter(setFileError(_id, 'Error'));
+      .catch(error => {
+        emitter({
+          type: actionTypes.DOWNLOAD_FILE_ERROR,
+          payload: { _id, error },
+        });
         emitter(END);
       });
 
     return () => {
-      RNFS.stopDownload(jobId);
+      task.cancel();
     };
   });
 }
 
-export function* downloadFileSaga(action: ActionType): * {
-  const { _id, uri } = action.payload;
-  const channel = yield call(downloadFileSagaHelper, _id, uri);
+export function* downloadFileSaga(action: ActionType<{ _id: string }>): * {
+  const { _id } = action.payload;
+  const comic = yield select(getComic, _id);
+  yield put({
+    type: actionTypes.DOWNLOAD_FILE_BEGIN,
+    payload: { _id },
+  });
+  const channel = yield call(downloadFileSagaHelper, comic);
 
   try {
     while (true) {
@@ -231,4 +240,14 @@ export function* downloadFileSaga(action: ActionType): * {
       yield put(action);
     }
   } catch (err) {}
+}
+
+export function* deleteFileSaga(action: ActionType<{ _id: string }>): * {
+  const { _id } = action.payload;
+  const path = yield select(getDownloadPath, _id);
+  yield call(RNFetch.fs.unlink, path);
+  yield put({
+    type: actionTypes.DELETE_FILE_FINISHED,
+    payload: { _id },
+  });
 }

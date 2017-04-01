@@ -1,6 +1,6 @@
 // @flow
 
-declare type ActionType = {
+declare type ActionType<T> = {
   type: string,
-  payload: Object,
+  payload: T,
 };

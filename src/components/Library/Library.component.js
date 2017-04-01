@@ -22,7 +22,7 @@ class Library extends PureComponent {
     }
 
     if (this.props.data.error) {
-      return <Error />;
+      return <Error onRetry={() => this.props.data.refetch()} />;
     }
 
     return (
@@ -54,12 +54,13 @@ class Library extends PureComponent {
 
 type PropsType = {
   folderId: String,
-  onFolderSelect: (_id: string) => void,
+  onFolderSelect: ({ _id: string, name: string }) => void,
   onComicRead: (_id: string) => void,
   data: {
     loading: boolean,
     error: Object,
     folder: Object,
+    refetch: () => void,
   },
 };
 
